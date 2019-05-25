@@ -1,0 +1,5 @@
+Maruska | John | Male | Green | 1995-05-05
+Townsend | Devin | Male | Blue | 1972-05-05
+Lee | Geddy | Male | Red | 1953-07-29
+Hamilton | Margaret | Female | Orange | 1936-08-17
+Sansone | Ellis | Other | Steel | 1994-07-07

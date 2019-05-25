@@ -1,40 +1,27 @@
 (ns homework.core-test
   (:require [clojure.test :refer :all]
-            [homework.core :as sut]))
+            [homework.core :as sut]
+            [homework.types :as t]
+            [clojure.spec.alpha :as s]))
 
-(def example-record
-  {:first-name "John"
-   :last-name "Maruska"
-   :gender "Male"
-   :favorite-color "Green"
-   :date-of-birth "1995-05-05"})
+(deftest line->record
+  (let [expected-record {:first-name "John"
+                         :last-name "Maruska"
+                         :gender "Male"
+                         :favorite-color "Green"
+                         :date-of-birth "1995-05-05"}]
+    (testing "parses pipe delimited input : ` | `"
+      (let [input "Maruska | John | Male | Green | 1995-05-05"]
+        (is (= expected-record) (sut/line->record #" \| " input))))
+    (testing "parses comma delimited input : `, `"
+      (let [input "Maruska, John, Male, Green, 1995-05-05"]
+        (is (= expected-record (sut/line->record #", " input)))))
+    (testing "parses space delimited input : ` `"
+      (let [input "Maruska John Male Green 1995-05-05"]
+        (is (= expected-record (sut/line->record #" " input)))))))
 
-(deftest pipe-input->record
-  (testing "parses into expected record"
-    (let [input "Maruska | John | Male | Green | 1995-05-05"
-          expected {:last-name "Maruska"
-                    :first-name "John"
-                    :gender "Male"
-                    :favorite-color "Green"
-                    :date-of-birth "1995-05-05"}]
-      (is (= expected (sut/pipe-input->record input))))))
-
-(deftest comma-input->record
-  (testing "parses into expected record"
-    (let [input "Maruska, John, Male, Green, 1995-05-05"
-          expected {:last-name "Maruska"
-                    :first-name "John"
-                    :gender "Male"
-                    :favorite-color "Green"
-                    :date-of-birth "1995-05-05"}]
-      (is (= expected (sut/comma-input->record input))))))
-
-(deftest space-input->record
-  (testing "parses into expected record"
-    (let [input "Maruska John Male Green 1995-05-05"
-          expected {:last-name "Maruska"
-                    :first-name "John"
-                    :gender "Male"
-                    :favorite-color "Green"
-                    :date-of-birth "1995-05-05"}]
-      (is (= expected (sut/space-input->record input))))))
+(deftest get-all-records
+  (testing "converts all entries to records"
+    (let [file "./test/pipe-input.txt"]
+      (is (every? #(s/valid? ::t/record %1)
+                  (sut/get-all-records file #" \| "))))))
