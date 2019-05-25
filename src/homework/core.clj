@@ -17,7 +17,7 @@
 ;; assumes given file exists
 ;; assumes correct delimiter sent
 ;; does not enforce return type
-(defn get-all-records
+(defn get-records-from-file
   "Read all records out of a given file.
 
   Given an input file and its delimiting character, return its contents as a
@@ -25,12 +25,15 @@
 
   Assumes that given file exists."
   [input-file delimiter]
-  (let [lines (-> input-file
-                  io/resource
-                  slurp
-                  (str/split #"\n"))]
+  (let [file-contents (slurp (io/resource input-file))]
     (map (partial line->record delimiter)
-         lines)))
+         (str/split file-contents #"\n"))))
+
+(defn get-all-records []
+  (concat
+   (get-records-from-file "comma-input.txt" #", ")
+   (get-records-from-file "pipe-input.txt" #" \| ")
+   (get-records-from-file "space-input.txt" #" ")))
 
 ;; haven't dug enough into spec to know how to utilize these...
 (comment
@@ -40,3 +43,28 @@
                  :delimiter #(= java.util.regex.Matcher
                                 (type %1)))
     :ret (s/coll-of ::t/record)))
+
+(defn sort-for-first-output
+  "sorted by gender (females before males) then by last name ascending"
+  [records]
+  (sort-by identity
+           (fn [left right]
+             (if (= (:gender left) (:gender right))
+               (compare (:last-name left) (:last-name right))
+               (compare (:gender left) (:gender right))))
+           records))
+
+(defn sort-for-second-output
+  "sorted by birth date, ascending"
+  [records]
+  (sort-by :date-of-birth records))
+
+(defn sort-for-third-output
+  "Sorted by last name descending"
+  [records]
+  (reverse (sort-by :last-name records)))
+
+(defn -main [&args]
+  (let [records (get-all-records)]
+    (println "Step 1:")
+    (println "  Output 1: ")))
