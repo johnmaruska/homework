@@ -22,7 +22,7 @@
 
 (deftest get-records-from-file
   (testing "converts all entries to records"
-    (let [file "./test/pipe-input.txt"]
+    (let [file "./pipe-input.txt"]
       (is (every? #(s/valid? ::t/record %1)
                   (sut/get-records-from-file file #" \| "))))))
 

@@ -79,3 +79,4 @@ stored as ISO8601 so long as the display adheres to the homework spec
 - favorite color and date of birth will be provided in a format that does not
 conflict with any chosen delimiting character
 - which input format is known beforehand, don't have to determine dynamically
+- responses won't be so large that a conversion step before response matters

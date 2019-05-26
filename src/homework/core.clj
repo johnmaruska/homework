@@ -1,6 +1,6 @@
 (ns homework.core
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]
+            [clojure.string :as string]
             [clojure.spec.alpha :as s]
             [homework.types :as t]))
 
@@ -12,7 +12,7 @@
    :date-of-birth (nth row 4)})
 
 (defn line->record [delimiter line]
-  (row->record (str/split line delimiter)))
+  (row->record (string/split line delimiter)))
 
 ;; assumes given file exists
 ;; assumes correct delimiter sent
@@ -27,7 +27,7 @@
   [input-file delimiter]
   (let [file-contents (slurp (io/resource input-file))]
     (map (partial line->record delimiter)
-         (str/split file-contents #"\n"))))
+         (string/split file-contents #"\n"))))
 
 (defn get-all-records []
   (concat
@@ -64,7 +64,12 @@
   [records]
   (reverse (sort-by :last-name records)))
 
-(defn -main [&args]
+(defn -main [& args]
   (let [records (get-all-records)]
-    (println "Step 1:")
-    (println "  Output 1: ")))
+    (println "Step 1:\n")
+    (println "  Output 1:")
+    (clojure.pprint/pprint (sort-for-first-output records))
+    (println "\n  Output 2:")
+    (clojure.pprint/pprint (sort-for-second-output records))
+    (println "\n  Output 3:")
+    (clojure.pprint/pprint (sort-for-third-output records))))
