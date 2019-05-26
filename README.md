@@ -44,6 +44,10 @@ Create and display 3 different views of the data you read in:
 
 Display dates in the format M/D/YYYY
 
+### Completed
+
+To check output for step 1, execute the command `lein run`
+
 ## Step 2 - Build a REST API to access your system
 
 Tests for this section are required as well.

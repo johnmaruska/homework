@@ -79,15 +79,15 @@
   ;; sorting is easier before updating the date
   (let [records (get-all-records)]
     (println "Step 1:\n")
-    (println "  Output 1:")
+    (println "\nOutput 1:\n")
     (clojure.pprint/pprint
      (->> (sort-for-first-output records)
           (map #(update %1 :date-of-birth iso8601->mmddyyyy))))
-    (println "\n  Output 2:")
+    (println "\nOutput 2:\n")
     (clojure.pprint/pprint
      (->> (sort-for-second-output records)
           (map #(update %1 :date-of-birth iso8601->mmddyyyy))))
-    (println "\n  Output 3:")
+    (println "\nOutput 3:\n")
     (clojure.pprint/pprint
      (->> (sort-for-third-output records)
           (map #(update %1 :date-of-birth iso8601->mmddyyyy))))))
