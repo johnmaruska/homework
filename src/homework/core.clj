@@ -64,12 +64,30 @@
   [records]
   (reverse (sort-by :last-name records)))
 
+(defn iso8601->mmddyyyy
+  [date]
+  (let [date-row (string/split date #"-")
+        year (nth date-row 0)
+        month (nth date-row 1)
+        day (nth date-row 2)]
+    (format "%s/%s/%s"
+            (Integer/parseInt month)
+            (Integer/parseInt day)
+            year)))
+
 (defn -main [& args]
+  ;; sorting is easier before updating the date
   (let [records (get-all-records)]
     (println "Step 1:\n")
     (println "  Output 1:")
-    (clojure.pprint/pprint (sort-for-first-output records))
+    (clojure.pprint/pprint
+     (->> (sort-for-first-output records)
+          (map #(update %1 :date-of-birth iso8601->mmddyyyy))))
     (println "\n  Output 2:")
-    (clojure.pprint/pprint (sort-for-second-output records))
+    (clojure.pprint/pprint
+     (->> (sort-for-second-output records)
+          (map #(update %1 :date-of-birth iso8601->mmddyyyy))))
     (println "\n  Output 3:")
-    (clojure.pprint/pprint (sort-for-third-output records))))
+    (clojure.pprint/pprint
+     (->> (sort-for-third-output records)
+          (map #(update %1 :date-of-birth iso8601->mmddyyyy))))))

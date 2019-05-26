@@ -86,3 +86,7 @@
                              hamilton-record])]
     (is (= expected-order
            (sut/sort-for-third-output original-order)))))
+
+(deftest iso8601->mmddyyyy
+  (is (= "5/5/1995"
+         (sut/iso8601->mmddyyyy "1995-05-05"))))
