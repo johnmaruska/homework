@@ -4,6 +4,22 @@
             [clojure.spec.alpha :as s]
             [homework.types :as t]))
 
+;;;; Common
+
+(defn get-line-delimiter [line]
+  (nth (re-matches t/record-line-regex line) 1))
+
+;;;; Write to datastore
+
+(defn write-record-line [line]
+  (let [file (case (get-line-delimiter line)
+               " " "resources/space-input.txt"
+               ", " "resources/comma-input.txt"
+               " |" "resources/pipe-input.txt")]
+    (spit file (str line "\n") :append true)))
+
+;;;; Read from datastore
+
 (defn row->record [row]
   {:last-name (nth row 0)
    :first-name (nth row 1)
