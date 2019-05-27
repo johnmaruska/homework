@@ -84,3 +84,4 @@ stored as ISO8601 so long as the display adheres to the homework spec
 conflict with any chosen delimiting character
 - which input format is known beforehand, don't have to determine dynamically
 - responses won't be so large that a conversion step before response matters
+- responses do not have to be paginated for size considerations

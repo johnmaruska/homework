@@ -1,5 +1,5 @@
 (ns homework.core-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is testing]]
             [homework.core :as sut]
             [homework.types :as t]
             [clojure.spec.alpha :as s]))
@@ -22,10 +22,19 @@
 
 (deftest get-records-from-file
   (testing "converts all entries to records"
-    (let [file "./pipe-input.txt"]
+    (let [file "pipe-input.txt"]
       (is (every? #(s/valid? ::t/record %1)
                   (sut/get-records-from-file file #" \| "))))))
 
+(deftest get-all-records
+  (testing "joins all record files contents"
+    (let [comma-records (sut/get-records-from-file "comma-input.txt" #", ")
+          pipe-records (sut/get-records-from-file "pipe-input.txt" #" \| ")
+          space-records (sut/get-records-from-file "space-input.txt" #" ")]
+      ;; set comparison because we're assuming unordered and I don't want the
+      ;; test to break if file reading order changes
+      (is (= (set (concat comma-records pipe-records space-records))
+             (set (sut/get-all-records)))))))
 
 (def hamilton-record {:first-name "Margaret"
                       :last-name "Hamilton"
@@ -51,7 +60,7 @@
                       :favorite-color "Blue"
                       :date-of-birth "1972-05-05"})
 
-(deftest sort-for-first-output
+(deftest sort-by-gender
   (let [original-order [townsend-record
                         sansone-record
                         maruska-record
@@ -61,9 +70,9 @@
                              townsend-record
                              sansone-record])]
     (is (= expected-order
-           (sut/sort-for-first-output original-order)))))
+           (sut/sort-by-gender original-order)))))
 
-(deftest sort-for-second-output
+(deftest sort-by-birthdate
   (let [original-order [hamilton-record
                         maruska-record
                         sansone-record
@@ -73,9 +82,9 @@
                              sansone-record
                              maruska-record])]
     (is (= expected-order
-           (sut/sort-for-second-output original-order)))))
+           (sut/sort-by-birthdate original-order)))))
 
-(deftest sort-for-third-outfit
+(deftest sort-by-name
   (let [original-order [hamilton-record
                         maruska-record
                         sansone-record
@@ -85,8 +94,20 @@
                              maruska-record
                              hamilton-record])]
     (is (= expected-order
-           (sut/sort-for-third-output original-order)))))
+           (sut/sort-by-name original-order)))))
 
 (deftest iso8601->mmddyyyy
   (is (= "5/5/1995"
          (sut/iso8601->mmddyyyy "1995-05-05"))))
+
+(deftest convert-date-of-birth-format
+  (let [original-records [{:date-of-birth "2000-01-01"}
+                          {:date-of-birth "1995-05-05"}
+                          {:date-of-birth "1995-05-12"}
+                          {:date-of-birth "1970-01-01"}]
+        expected-records [{:date-of-birth "1/1/2000"}
+                          {:date-of-birth "5/5/1995"}
+                          {:date-of-birth "5/12/1995"}
+                          {:date-of-birth "1/1/1970"}]]
+    (is (= expected-records
+           (sut/convert-date-of-birth-format original-records)))))

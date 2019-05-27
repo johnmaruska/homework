@@ -7,5 +7,8 @@
 (s/def ::favorite-color string?)
 (def date-of-birth-regex #"^[0-9]{4}-[0-9]{2}-[0-9]{2}")
 (s/def ::date-of-birth (s/and string? #(re-matches date-of-birth-regex %)))
-(s/def ::record
-  (s/keys :req-un [::first-name ::last-name ::gender ::favorite-color ::date-of-birth]))
+(s/def ::record (s/keys :req-un [::first-name
+                                 ::last-name
+                                 ::gender
+                                 ::favorite-color
+                                 ::date-of-birth]))

@@ -44,28 +44,33 @@
                                 (type %1)))
     :ret (s/coll-of ::t/record)))
 
-(defn sort-for-first-output
+(defn comparator-with-tiebreaker
+  [primary-key tiebreaker-key]
+  (fn [left right]
+    (if (= (primary-key left) (primary-key right))
+      (compare (tiebreaker-key left) (tiebreaker-key right))
+      (compare (primary-key left) (primary-key right)))))
+
+(defn sort-by-gender
   "sorted by gender (females before males) then by last name ascending"
   [records]
-  (sort-by identity
-           (fn [left right]
-             (if (= (:gender left) (:gender right))
-               (compare (:last-name left) (:last-name right))
-               (compare (:gender left) (:gender right))))
-           records))
+  (let [key-fn identity
+        comparator-fn (comparator-with-tiebreaker :gender :last-name)]
+    (sort-by key-fn comparator-fn records)))
 
-(defn sort-for-second-output
+(defn sort-by-birthdate
   "sorted by birth date, ascending"
   [records]
   (sort-by :date-of-birth records))
 
-(defn sort-for-third-output
+(defn sort-by-name
   "Sorted by last name descending"
   [records]
-  (reverse (sort-by :last-name records)))
+  (let [key-fn identity
+        comparator-fn (comparator-with-tiebreaker :last-name :first-name)]
+    (reverse (sort-by key-fn comparator-fn records))))
 
-(defn iso8601->mmddyyyy
-  [date]
+(defn iso8601->mmddyyyy [date]
   (let [date-row (string/split date #"-")
         year (nth date-row 0)
         month (nth date-row 1)
@@ -75,19 +80,25 @@
             (Integer/parseInt day)
             year)))
 
+(defn convert-date-of-birth-format [records]
+  (map #(update %1 :date-of-birth iso8601->mmddyyyy) records))
+
 (defn -main [& args]
   ;; sorting is easier before updating the date
   (let [records (get-all-records)]
     (println "Step 1:\n")
     (println "\nOutput 1:\n")
     (clojure.pprint/pprint
-     (->> (sort-for-first-output records)
-          (map #(update %1 :date-of-birth iso8601->mmddyyyy))))
+     (-> records
+         sort-by-gender
+         convert-date-of-birth-format))
     (println "\nOutput 2:\n")
     (clojure.pprint/pprint
-     (->> (sort-for-second-output records)
-          (map #(update %1 :date-of-birth iso8601->mmddyyyy))))
+     (-> records
+         sort-by-birthdate
+         convert-date-of-birth-format))
     (println "\nOutput 3:\n")
     (clojure.pprint/pprint
-     (->> (sort-for-third-output records)
-          (map #(update %1 :date-of-birth iso8601->mmddyyyy))))))
+     (-> records
+         sort-by-name
+         convert-date-of-birth-format))))
