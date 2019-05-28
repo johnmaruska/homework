@@ -82,6 +82,15 @@ Please check-in your project files or bring your own laptop for this part.
 stored as ISO8601 so long as the display adheres to the homework spec
 - favorite color and date of birth will be provided in a format that does not
 conflict with any chosen delimiting character
-- which input format is known beforehand, don't have to determine dynamically
 - responses won't be so large that a conversion step before response matters
 - responses do not have to be paginated for size considerations
+
+
+## Improvements if I wanted to spend more time on this
+
+- command-line arguments to specify delimiter
+- more use of spec
+- allow POST to use m/d/yyyy format. Easiest to convert line->record->line
+- make functions figure out delimiter instead of being passed
+- could optimize how frequently a full read of all data is done
+    + memoize + track inserts?, i.e. in-memory store

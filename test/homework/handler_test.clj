@@ -1,9 +1,11 @@
 (ns homework.handler-test
   (:require [cheshire.core :as json]
-            [clojure.test :as t :refer [deftest testing is] ]
+            [clojure.test :refer [deftest testing is] ]
+            [homework.core :as core]
             [homework.handler :as handler]
+            [homework.types :as t]
             [ring.mock.request :as mock]
-            [homework.core :as core]))
+            [clojure.spec.alpha :as s]))
 
 (defn parse-body [body]
   (json/parse-string (slurp body) true))
@@ -54,3 +56,30 @@
         (is (every? #(re-matches #"\d{1,2}/\d{1,2}/\d{4}"
                                  (:date-of-birth %1))
                     (:results body)))))))
+
+(deftest post-record
+  (testing "POST /records"
+    (testing "comma-delimited gives 201 Created"
+      (let [request-body "\"Reynolds, Malcolm, Male, Brown, 2553-10-10\""
+            response (handler/app (-> (mock/request :post "/records")
+                                      (mock/content-type "application/json")
+                                      (mock/body request-body)))]
+        (is (= (:status response) 201))))
+    (testing "space-delimited gives 201 Created"
+      (let [request-body "\"Reynolds Malcolm Male Brown 2553-10-10\""
+            response (handler/app (-> (mock/request :post "/records")
+                                      (mock/content-type "application/json")
+                                      (mock/body request-body)))]
+        (is (= (:status response) 201))))
+    (testing "pipe-delimited gives 201 Created"
+      (let [request-body "\"Reynolds | Malcolm | Male | Brown | 2553-10-10\""
+            response (handler/app (-> (mock/request :post "/records")
+                                      (mock/content-type "application/json")
+                                      (mock/body request-body)))]
+        (is (= (:status response) 201))))
+    (testing "unexpected format gives 400 Bad Request"
+      (let [request-body "\"Reynolds__Malcolm__Male__Brown__2553-10-10\""
+            response (handler/app (-> (mock/request :post "/records")
+                                      (mock/content-type "application/json")
+                                      (mock/body request-body)))]
+        (is (= (:status response) 400))))))

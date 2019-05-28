@@ -2,12 +2,14 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.spec.alpha :as s]
-            [homework.types :as t]))
+            [homework.types :as t]
+            [java-time :as time]))
 
 ;;;; Common
 
 (defn get-line-delimiter [line]
-  (nth (re-matches t/record-line-regex line) 1))
+  (let [matches (re-matches t/record-line-regex line)]
+    (nth matches 2)))
 
 ;;;; Write to datastore
 
@@ -15,11 +17,12 @@
   (let [file (case (get-line-delimiter line)
                " " "resources/space-input.txt"
                ", " "resources/comma-input.txt"
-               " |" "resources/pipe-input.txt")]
+               " | " "resources/pipe-input.txt")]
     (spit file (str line "\n") :append true)))
 
 ;;;; Read from datastore
 
+;; Assumes properly formatted row
 (defn row->record [row]
   {:last-name (nth row 0)
    :first-name (nth row 1)
@@ -27,6 +30,7 @@
    :favorite-color (nth row 3)
    :date-of-birth (nth row 4)})
 
+;; Assumes properly formatted line and correct delimiter
 (defn line->record [delimiter line]
   (row->record (string/split line delimiter)))
 
@@ -51,15 +55,7 @@
    (get-records-from-file "pipe-input.txt" #" \| ")
    (get-records-from-file "space-input.txt" #" ")))
 
-;; haven't dug enough into spec to know how to utilize these...
-(comment
-  ;; define the spec for the function! I haven't done anything with spec before
-  (s/fdef get-all-records
-    :args (s/cat :input-file string?
-                 :delimiter #(= java.util.regex.Matcher
-                                (type %1)))
-    :ret (s/coll-of ::t/record)))
-
+;; Could be extended to arbitrary number of ties with recursion over all keys
 (defn comparator-with-tiebreaker
   [primary-key tiebreaker-key]
   (fn [left right]
@@ -87,34 +83,40 @@
     (reverse (sort-by key-fn comparator-fn records))))
 
 (defn iso8601->mmddyyyy [date]
-  (let [date-row (string/split date #"-")
-        year (nth date-row 0)
-        month (nth date-row 1)
-        day (nth date-row 2)]
-    (format "%s/%s/%s"
-            (Integer/parseInt month)
-            (Integer/parseInt day)
-            year)))
+  (time/format "M/d/yyyy" (time/local-date "yyyy-MM-dd" date)))
+(defn mmddyyyy->iso8601 [date]
+  (time/format "yyyy-MM-dd" (time/local-date "M/d/yyyy" date)))
 
 (defn convert-date-of-birth-format [records]
   (map #(update %1 :date-of-birth iso8601->mmddyyyy) records))
 
+(defn record->string [delimiter record]
+  (string/join delimiter [(:last-name record)
+                          (:first-name record)
+                          (:gender record)
+                          (:favorite-color record)
+                          (:date-of-birth record)]))
+
+(defn records->string [delimiter records]
+  (string/join "\n" (map (partial record->string delimiter)
+                         records)))
+
 (defn -main [& args]
   ;; sorting is easier before updating the date
-  (let [records (get-all-records)]
-    (println "Step 1:\n")
-    (println "\nOutput 1:\n")
-    (clojure.pprint/pprint
-     (-> records
-         sort-by-gender
-         convert-date-of-birth-format))
+  (let [records (get-all-records)
+        ->display-fmt (fn [rs] (records->string " | " rs))]
+    (println "Output 1:\n")
+    (println (-> records
+                 sort-by-gender
+                 convert-date-of-birth-format
+                 ->display-fmt))
     (println "\nOutput 2:\n")
-    (clojure.pprint/pprint
-     (-> records
-         sort-by-birthdate
-         convert-date-of-birth-format))
+    (println (-> records
+                 sort-by-birthdate
+                 convert-date-of-birth-format
+                 ->display-fmt))
     (println "\nOutput 3:\n")
-    (clojure.pprint/pprint
-     (-> records
-         sort-by-name
-         convert-date-of-birth-format))))
+    (println (-> records
+                 sort-by-name
+                 convert-date-of-birth-format
+                 ->display-fmt))))

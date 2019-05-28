@@ -4,6 +4,41 @@
             [homework.types :as t]
             [clojure.spec.alpha :as s]))
 
+;;;; Write to datastore
+(deftest write-record-line
+  (testing "space-delimited entries write to space-input.txt"
+    (let [expected-file "resources/space-input.txt"
+          input "lastName firstName Male color 1999-09-09"
+          spit-called? (atom false)]
+      (with-redefs [spit (fn [file line & opts]
+                           (is (= expected-file file))
+                           (is (= (str input "\n") line))
+                           (reset! spit-called? true))]
+        (sut/write-record-line input)
+        (is @spit-called?))))
+  (testing "comma-delimited entries write to comma-input.txt"
+    (let [expected-file "resources/comma-input.txt"
+          input "lastName, firstName, Male, color, 1999-09-09"
+          spit-called? (atom false)]
+      (with-redefs [spit (fn [file line & opts]
+                           (is (= expected-file file))
+                           (is (= (str input "\n") line))
+                           (reset! spit-called? true))]
+        (sut/write-record-line input)
+        (is @spit-called?))))
+  (testing "pipe-delimited entries write to pipe-input.txt"
+    (let [expected-file "resources/pipe-input.txt"
+          input "lastName | firstName | Male | color | 1999-09-09"
+          spit-called? (atom false)]
+      (with-redefs [spit (fn [file line & opts]
+                           (is (= expected-file file))
+                           (is (= (str input "\n") line))
+                           (reset! spit-called? true))]
+        (sut/write-record-line input)
+        (is @spit-called?)))))
+
+;;;; Read from datastore
+
 (deftest line->record
   (let [expected-record {:first-name "John"
                          :last-name "Maruska"
@@ -99,6 +134,35 @@
 (deftest iso8601->mmddyyyy
   (is (= "5/5/1995"
          (sut/iso8601->mmddyyyy "1995-05-05"))))
+(deftest mmddyyyy->iso8601
+  (is (= "1995-05-05"
+         (sut/mmddyyyy->iso8601 "5/5/1995"))))
+
+(deftest record->string
+  (let [record {:last-name "lastName"
+                :first-name "firstName"
+                :gender "Other"
+                :favorite-color "some"
+                :date-of-birth "2000-01-01"}
+        string-record "lastName | firstName | Other | some | 2000-01-01"]
+    (is (= string-record (sut/record->string " | " record)))))
+
+(deftest records->string
+  (let [record-a {:last-name "lastName"
+                  :first-name "firstName"
+                  :gender "Other"
+                  :favorite-color "some"
+                  :date-of-birth "2000-01-01"}
+        record-b {:last-name "bertie"
+                  :first-name "tuca"
+                  :gender "Female"
+                  :favorite-color "Blue"
+                  :date-of-birth "2019-05-17"}
+        expected (str (sut/record->string " " record-a)
+                      "\n"
+                      (sut/record->string " " record-b))
+        actual (sut/records->string " " [record-a record-b])]
+    (is (= expected actual))))
 
 (deftest convert-date-of-birth-format
   (let [original-records [{:date-of-birth "2000-01-01"}

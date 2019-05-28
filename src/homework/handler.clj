@@ -37,5 +37,4 @@
            (core/write-record-line line)
            (http/created line))
          (http/bad-request
-          (str "Must format body `lastName firstName gender favoriteColor"
-               " dateOfBirth` where dateOfBirth is yyyy-mm-dd")))))))
+          (str (s/explain ::t/record-line line))))))))

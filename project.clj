@@ -1,5 +1,6 @@
 (defproject homework "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.10.0"]
+  :dependencies [[clojure.java-time "0.3.2"]
+                 [org.clojure/clojure "1.10.0"]
                  [metosin/compojure-api "1.1.12"]
                  [metosin/spec-tools "0.9.2"]]
   :main ^:skip-aot homework.core

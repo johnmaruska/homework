@@ -29,7 +29,7 @@
                                  ::favorite-color
                                  ::date-of-birth]))
 (def record-line-pattern
-  (string/join "( |, | \\| )" [name-pattern
+  (string/join "( \\| |, | )" [name-pattern
                                name-pattern
                                gender-pattern
                                color-pattern
