@@ -101,3 +101,5 @@ conflict with any chosen delimiting character
 - make functions figure out delimiter instead of being passed
 - could optimize how frequently a full read of all data is done
     + memoize + track inserts?, i.e. in-memory store
+- I think tests are writing the same entry to the datastore which is pretty
+annoying and something I'd like to fix
