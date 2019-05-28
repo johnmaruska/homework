@@ -66,6 +66,15 @@ well structured data. These endpoints should return JSON.
 
 To keep it simple, don't worry about using a persistent datastore.
 
+### Completed
+
+All endpoints are implemented and respond with proper status code. Improperly
+formatted POST bodies respond with a status 400 and `spec/explain` against the
+expected regular expression.
+
+To check output for step 2, run the web server with the command 
+`lein ring server` and utilize the generated Swagger page
+
 ## Step 3 - Review and Refactor
 
 When you are invited to interview in person, we will sit down with you and offer
@@ -75,7 +84,6 @@ structure of your solution.
 
 Please check-in your project files or bring your own laptop for this part.
 
-
 ## Assumptions I'm Making
 
 - "input" files can have data stored in format of my choice, e.g. date can be
@@ -84,7 +92,6 @@ stored as ISO8601 so long as the display adheres to the homework spec
 conflict with any chosen delimiting character
 - responses won't be so large that a conversion step before response matters
 - responses do not have to be paginated for size considerations
-
 
 ## Improvements if I wanted to spend more time on this
 
